@@ -71,7 +71,8 @@ extern "C" {
 			error = sensor.readDifferentialPressureAndTemperature(differentialPressurePSI, temperatureC);
 			checkSensorError(error, "failed to read diff pressure & temperature");
 
-			// Getting IAS using diff pressure
+			// Getting IAS using diff pressure. It's highly recommended to apply EMA or similar filter to
+			// smooth out airspeed value, but who cares...
 			indicatedAirspeedMS = MS4525::getIndicatedAirspeedMS(differentialPressurePSI);
 
 			// Printing whole stuff out
@@ -81,4 +82,19 @@ extern "C" {
 		}
 	}
 }
+```
+
+# Result:
+
+```txt
+I (298895) main: diff pressure: 0.005799 PSI, temperature: 23.277969 deg C, airspeed: 8.079220 m/s
+I (298935) main: diff pressure: 0.001526 PSI, temperature: 23.277969 deg C, airspeed: 4.144526 m/s
+I (298955) main: diff pressure: 0.003205 PSI, temperature: 23.277969 deg C, airspeed: 6.006040 m/s
+I (298995) main: diff pressure: 0.005799 PSI, temperature: 23.277969 deg C, airspeed: 8.079220 m/s
+I (299015) main: diff pressure: 0.003662 PSI, temperature: 23.277969 deg C, airspeed: 6.420705 m/s
+I (299035) main: diff pressure: 0.002899 PSI, temperature: 23.277969 deg C, airspeed: 5.712901 m/s
+I (299075) main: diff pressure: 0.006867 PSI, temperature: 23.277969 deg C, airspeed: 8.791964 m/s
+I (299095) main: diff pressure: 0.002594 PSI, temperature: 23.277969 deg C, airspeed: 5.403883 m/s
+I (299115) main: diff pressure: 0.001373 PSI, temperature: 23.277969 deg C, airspeed: 3.931852 m/s
+I (299135) main: diff pressure: 0.003357 PSI, temperature: 23.277969 deg C, airspeed: 6.147370 m/s
 ```
