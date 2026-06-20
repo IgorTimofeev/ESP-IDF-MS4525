@@ -55,7 +55,7 @@ extern "C" {
 		// software calibration, most sensor will produce messy results
 		float differentialPressureBias = 0;
 		auto error = sensor.computeMedianDifferentialPressureBias(differentialPressureBias);
-		checkSensorError(error, "failed to compute average pressure bias");
+		checkSensorError(error, "failed to compute median diff pressure bias");
 
 		// Setting computed bias
 		sensor.setDifferentialPressureBias(differentialPressureBias);
