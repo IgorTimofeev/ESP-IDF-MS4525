@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstring>
 #include <array>
+#include <ranges>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -99,10 +100,10 @@ namespace YOBA {
 				// Reading raw data
 				uint8_t rawData[4];
 
-				const auto ESPError = i2c_master_receive(_I2CDeviceHandle, rawData, 4, 500);
+				const auto error = i2c_master_receive(_I2CDeviceHandle, rawData, 4, 500);
 
-				if (ESPError != ESP_OK) {
-					ESP_ERROR_CHECK_WITHOUT_ABORT(ESPError);
+				if (error != ESP_OK) {
+					ESP_ERROR_CHECK_WITHOUT_ABORT(error);
 					return MS4525Error::I2C;
 				}
 
@@ -124,26 +125,26 @@ namespace YOBA {
 				// ESP_LOGI("sens", "rawPressure: %d, rawTemperature: %d", rawPressure, rawTemperature);
 
 				// Computing pressure
-				float typeRangeMin, typeRangeMax;
+				float outputTypeRangeMin, outputTypeRangeMax;
 
 				switch (_outputType) {
 					case MS4525OutputType::a:
-						typeRangeMin = outputTypeARangeMin;
-						typeRangeMax = outputTypeARangeMax;
+						outputTypeRangeMin = outputTypeARangeMin;
+						outputTypeRangeMax = outputTypeARangeMax;
 
 						break;
 
 					default:
-						typeRangeMin = outputTypeBRangeMin;
-						typeRangeMax = outputTypeBRangeMax;
+						outputTypeRangeMin = outputTypeBRangeMin;
+						outputTypeRangeMax = outputTypeBRangeMax;
 
 						break;
 				}
 
 				differentialPressurePSI =
-					(static_cast<float>(rawPressure) - typeRangeMin * maxRawPressure)
+					(static_cast<float>(rawPressure) - outputTypeRangeMin * maxRawPressure)
 					* (_maxPressurePSI - _minPressurePSI)
-					/ (typeRangeMax * maxRawPressure)
+					/ (outputTypeRangeMax * maxRawPressure)
 					+ _minPressurePSI
 					- _differentialPressureBias;
 
@@ -179,8 +180,7 @@ namespace YOBA {
 			MS4525Error computeMedianDifferentialPressureBias(float& bias) const {
 				std::array<float, bufferSize> buffer {};
 
-				float differentialPressurePSI;
-				float temperatureC;
+				float differentialPressurePSI, temperatureC;
 
 				const auto sampleDurationTicks = pdMS_TO_TICKS(1'000 / sampleRateHz);
 
