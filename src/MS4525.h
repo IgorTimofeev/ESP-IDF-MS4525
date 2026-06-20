@@ -145,7 +145,7 @@ namespace YOBA {
 					* (_maxPressurePSI - _minPressurePSI)
 					/ (typeRangeMax * maxRawPressure)
 					+ _minPressurePSI
-					- _pressureBias;
+					- _differentialPressureBias;
 
 				// Computing temperature
 				temperatureC =
@@ -159,6 +159,14 @@ namespace YOBA {
 				return MS4525Error::none;
 			}
 
+			float getDifferentialPressureBias() const {
+				return _differentialPressureBias;
+			}
+
+			void setDifferentialPressureBias(const float pressureBias) {
+				_differentialPressureBias = pressureBias;
+			}
+
 			static float getIndicatedAirspeedMS(const float differentialPressurePSI) {
 				return
 					differentialPressurePSI > 0.0f
@@ -166,16 +174,10 @@ namespace YOBA {
 					: 0.0f;
 			}
 
-			float getPressureBias() const {
-				return _pressureBias;
-			}
-
-			void setPressureBias(const float pressureBias) {
-				_pressureBias = pressureBias;
-			}
-
-			MS4525Error computeAverageDifferentialPressureBias(float& bias, const uint16_t sampleRateHz = 50) const {
-				std::array<float, 200> buffer {};
+			// Performs multiple sensor readings into stack allocated buffer at the specified sample rate and returns the median value
+			template<size_t bufferSize = 200, uint16_t sampleRateHz = 50>
+			MS4525Error computeMedianDifferentialPressureBias(float& bias) const {
+				std::array<float, bufferSize> buffer {};
 
 				float differentialPressurePSI;
 				float temperatureC;
@@ -239,6 +241,6 @@ namespace YOBA {
 			float _minPressurePSI = 0;
 			float _maxPressurePSI = 0;
 
-			float _pressureBias = 0;
+			float _differentialPressureBias = 0;
 	};
 }
