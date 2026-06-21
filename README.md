@@ -16,7 +16,7 @@ Tiny lib for reading differential pressure, temperature & airspeed from MS4525 p
 extern "C" {
 	using namespace YOBA;
 
-	// Checks for sensor errors, logs them and pauses the program if something fails
+	// Checks for sensor errors, logs them and puts ESP into an infinite waiting loop if something fails
 	static MS4525Error checkSensorError(const MS4525Error error, const char* prefix) {
 		if (error == MS4525Error::none)
 			return error;
